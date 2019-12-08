@@ -28,18 +28,30 @@ import board
 import digitalio
 from adafruit_debouncer import Debouncer
 
-pin = digitalio.DigitalInOut(board.D12)
+pin = digitalio.DigitalInOut(board.D11)
 pin.direction = digitalio.Direction.INPUT
 pin.pull = digitalio.Pull.UP
-switch = Debouncer(pin)
+switch1 = Debouncer(pin)
+
+switch2 = Debouncer(board.D12)
 
 while True:
-    switch.update()
-    if switch.fell:
-        print('Just pressed')
-    if switch.rose:
-        print('Just released')
-    if switch.value:
-        print('not pressed')
+    switch1.update()
+    switch2.update()
+    if switch1.fell:
+        print('Just pressed 1')
+    if switch1.rose:
+        print('Just released 1')
+    if switch1.value:
+        print('not pressed 1')
     else:
-        print('pressed')
+        print('pressed 1')
+
+    if switch2.fell:
+        print('Just pressed 2')
+    if switch2.rose:
+        print('Just released 2')
+    if switch2.value:
+        print('not pressed 2')
+    else:
+        print('pressed 2')
