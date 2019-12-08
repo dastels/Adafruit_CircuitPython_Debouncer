@@ -48,6 +48,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Debouncer.git"
 import time
 import digitalio
 from micropython import const
+import microcontroller
 
 _DEBOUNCED_STATE = const(0x01)
 _UNSTABLE_STATE = const(0x02)
@@ -56,16 +57,21 @@ _CHANGED_STATE = const(0x04)
 class Debouncer(object):
     """Debounce an input pin or an arbitrary predicate"""
 
-    def __init__(self, io_or_predicate, interval=0.010):
+    def __init__(self, pin_io_or_predicate, interval=0.010):
         """Make am instance.
            :param DigitalInOut/function io_or_predicate: the DigitalIO or function to debounce
            :param int interval: bounce threshold in seconds (default is 0.010, i.e. 10 milliseconds)
         """
         self.state = 0x00
-        if isinstance(io_or_predicate, digitalio.DigitalInOut):
-            self.function = lambda: io_or_predicate.value
+        if isinstance(pin_io_or_predicate, digitalio.DigitalInOut):
+            self.function = lambda: pin_io_or_predicate.value
+        elif isinstance(pin_io_or_predicate, microcontroller.Pin):
+            io = digitalio.DigitalInOut(pin_io_or_predicate)
+            io.direction = digitalio.Direction.INPUT
+            io.pull = digitalio.Pull.UP
+            self.function = lambda: io.value
         else:
-            self.function = io_or_predicate
+            self.function = pin_io_or_predicate
         if self.function():
             self._set_state(_DEBOUNCED_STATE | _UNSTABLE_STATE)
         self.previous_time = 0
